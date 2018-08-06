@@ -19,6 +19,8 @@ import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var query: RealmResults<User>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -32,18 +34,18 @@ class MainActivity : AppCompatActivity() {
         Realm.setDefaultConfiguration(config)
 
 
-        Realm.getDefaultInstance()
+        query = Realm.getDefaultInstance()
                 .where(User::class.java)
                 .findAllAsync()
-                .addChangeListener(RealmChangeListener<RealmResults<User>> {
-                    val user = it.first(null)
-                    val loginStr = when {
-                        null == user -> "no user login here"
-                        !user.isValid -> "database was invalid"
-                        else -> "user login state:${user.login}"
-                    }
-                    titleText.text = loginStr
-                })
+        query.addChangeListener(RealmChangeListener<RealmResults<User>> {
+            val user = it.first(null)
+            val loginStr = when {
+                null == user -> "no user login here"
+                !user.isValid -> "database was invalid"
+                else -> "user login state:${user.login}"
+            }
+            titleText.text = loginStr
+        })
 
         fab.setOnClickListener {
             tryLogin(it)
